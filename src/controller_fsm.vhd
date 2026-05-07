@@ -38,8 +38,37 @@ entity controller_fsm is
 end controller_fsm;
 
 architecture FSM of controller_fsm is
-
+    type sm_state is (s_CLR, s_LOADa, s_LOADb, s_DISPLAY);
+    
+    signal f_Q, f_Q_next: sm_state;
 begin
+    
+    --Next State Logic
+f_Q_next <= s_LOADa when f_Q = s_CLR else
+            s_LOADb when f_Q = s_LOADa else
+            s_DISPLAY when f_Q = s_LOADb else
+            s_CLR when f_Q = s_DISPLAY else
+            f_Q;
+            
+    --Output logic
+with f_Q select
+    o_cycle <= "0001" when s_CLR,
+               "0010" when s_LOADa,
+               "0100" when s_LOADb,
+               "1000" when s_DISPLAY,
+               "0001" when others;
 
+    --Processes
+register_proc : process (i_adv)
+begin
+    if (rising_edge(i_adv)) then
+        if (i_reset = '1') then
+            f_Q <= s_CLR;
+        else
+            f_Q <= f_Q_next;
+        end if;
+    end if;
+end process register_proc;
+            
 
 end FSM;
