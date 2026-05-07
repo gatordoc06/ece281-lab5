@@ -59,14 +59,12 @@ with f_Q select
                "0001" when others;
 
     --Processes
-register_proc : process (i_adv)
+register_proc : process (i_adv, i_reset)
 begin
-    if (rising_edge(i_adv)) then
-        if (i_reset = '1') then
-            f_Q <= s_CLR;
-        else
-            f_Q <= f_Q_next;
-        end if;
+    if i_reset = '1' then
+        f_Q <= s_CLR;
+    elsif rising_edge(i_adv) then
+        f_Q <= f_Q_next;
     end if;
 end process register_proc;
             
